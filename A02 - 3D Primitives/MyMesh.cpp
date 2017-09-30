@@ -276,7 +276,29 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	std::vector<vector3> Points; 
+	Points.push_back(vector3(0, a_fHeight, 0)); 
+	Points.push_back(vector3(0,0,0));
+
+	float dAngle = 360 / a_nSubdivisions; 
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		Points.push_back(vector3(glm::sin(glm::radians(dAngle * i)) * a_fRadius, 0.0f, glm::cos(glm::radians(dAngle * i)) * a_fRadius));
+	}
+	for (int i = 0; i <= a_nSubdivisions; i++)
+	{
+		AddTri(Points[i], Points[i+1], Points[0]);
+	}
+
+	AddTri(Points[a_nSubdivisions+1], Points[2],Points[0]);
+
+	for (int i = 0; i <= a_nSubdivisions; i++)
+	{
+		AddTri(Points[i+1], Points[i], Points[1]);
+	}
+
+	AddTri(Points[2], Points[a_nSubdivisions + 1], Points[1]);
+
 	// -------------------------------
 
 	// Adding information about color
@@ -300,7 +322,40 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+
+	std::vector<vector3> topPoints;
+	topPoints.push_back(vector3(0, a_fHeight, 0));
+
+	std::vector<vector3> Points;
+	Points.push_back(vector3(0, 0, 0));
+
+	float dAngle = 360 / a_nSubdivisions;
+	for (int i = 0; i < a_nSubdivisions; i++) // starts at  1
+	{
+		Points.push_back(vector3(glm::sin(glm::radians(dAngle * i)) * a_fRadius, 0.0f, glm::cos(glm::radians(dAngle * i)) * a_fRadius));
+		topPoints.push_back(vector3(glm::sin(glm::radians(dAngle * i)) * a_fRadius, a_fHeight, glm::cos(glm::radians(dAngle * i)) * a_fRadius));
+	}
+	//base
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		AddTri(Points[i + 1], Points[i], Points[0]);
+	}
+	AddTri(Points[1], Points[a_nSubdivisions], Points[0]);
+
+	//top
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		AddTri(topPoints[i + 1], topPoints[0] ,topPoints[i]);
+	}
+	AddTri(topPoints[1], topPoints[0], topPoints[a_nSubdivisions]);
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		AddQuad(Points[i], Points[i + 1], topPoints[i], topPoints[i + 1]); 
+	}
+
+	AddQuad(Points[a_nSubdivisions], Points[1], topPoints[a_nSubdivisions], topPoints[1]);
+
 	// -------------------------------
 
 	// Adding information about color
@@ -330,7 +385,43 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	std::vector<vector3> intopPoints;
+	std::vector<vector3> inPoints;
+
+	std::vector<vector3> outtopPoints;
+	std::vector<vector3> outPoints;
+
+
+	float dAngle = 360 / a_nSubdivisions;
+	for (int i = 0; i < a_nSubdivisions; i++) // starts at  1
+	{
+		inPoints.push_back(vector3(glm::sin(glm::radians(dAngle * i)) * a_fInnerRadius, 0.0f, glm::cos(glm::radians(dAngle * i)) * a_fInnerRadius));
+		intopPoints.push_back(vector3(glm::sin(glm::radians(dAngle * i)) * a_fInnerRadius, a_fHeight, glm::cos(glm::radians(dAngle * i)) * a_fInnerRadius));
+
+		outPoints.push_back(vector3(glm::sin(glm::radians(dAngle * i)) * a_fOuterRadius, 0.0f, glm::cos(glm::radians(dAngle * i)) * a_fOuterRadius));
+		outtopPoints.push_back(vector3(glm::sin(glm::radians(dAngle * i)) * a_fOuterRadius, a_fHeight, glm::cos(glm::radians(dAngle * i)) * a_fOuterRadius));
+	}
+
+	//rings
+	for (int i = 0; i < a_nSubdivisions-1; i++)
+	{
+		AddQuad(inPoints[i], inPoints[i + 1],outPoints[i], outPoints[i + 1]);
+		AddQuad(outtopPoints[i], outtopPoints[i + 1], intopPoints[i], intopPoints[i + 1]);
+	}
+	AddQuad(inPoints[a_nSubdivisions-1], inPoints[0], outPoints[a_nSubdivisions-1], outPoints[0]);
+	AddQuad(outtopPoints[a_nSubdivisions - 1], outtopPoints[0], intopPoints[a_nSubdivisions - 1], intopPoints[0]);
+	
+
+	//faces
+
+	for (int i = 0; i < a_nSubdivisions-1; i++)
+	{
+		AddQuad(outPoints[i], outPoints[i+1], outtopPoints[i], outtopPoints[i+1]);
+		AddQuad(intopPoints[i], intopPoints[i + 1], inPoints[i], inPoints[i + 1]);
+	}
+
+	AddQuad(outPoints[a_nSubdivisions - 1], outPoints[0], outtopPoints[a_nSubdivisions - 1], outtopPoints[0]);
+	AddQuad(intopPoints[a_nSubdivisions - 1], intopPoints[0], inPoints[a_nSubdivisions - 1], inPoints[0]);
 	// -------------------------------
 
 	// Adding information about color
@@ -361,14 +452,52 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	// Replace this with your code xd
+	std::vector<vector3> intopPoints;
+	std::vector<vector3> inPoints;
+
+	std::vector<vector3> outtopPoints;
+	std::vector<vector3> outPoints;
+
+	int a_nSubdivisions = 25; 
+	float a_fHeight = .1; 
+	float dAngle = 360 / a_nSubdivisions;
+	for (int i = 0; i < a_nSubdivisions; i++) // starts at  1
+	{
+		inPoints.push_back(vector3(glm::sin(glm::radians(dAngle * i)) * a_fInnerRadius, 0.0f, glm::cos(glm::radians(dAngle * i)) * a_fInnerRadius));
+		intopPoints.push_back(vector3(glm::sin(glm::radians(dAngle * i)) * a_fInnerRadius, a_fHeight, glm::cos(glm::radians(dAngle * i)) * a_fInnerRadius));
+
+		outPoints.push_back(vector3(glm::sin(glm::radians(dAngle * i)) * a_fOuterRadius, 0.0f, glm::cos(glm::radians(dAngle * i)) * a_fOuterRadius));
+		outtopPoints.push_back(vector3(glm::sin(glm::radians(dAngle * i)) * a_fOuterRadius, a_fHeight, glm::cos(glm::radians(dAngle * i)) * a_fOuterRadius));
+	}
+
+	//rings
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddQuad(inPoints[i], inPoints[i + 1], outPoints[i], outPoints[i + 1]);
+		AddQuad(outtopPoints[i], outtopPoints[i + 1], intopPoints[i], intopPoints[i + 1]);
+	}
+	AddQuad(inPoints[a_nSubdivisions - 1], inPoints[0], outPoints[a_nSubdivisions - 1], outPoints[0]);
+	AddQuad(outtopPoints[a_nSubdivisions - 1], outtopPoints[0], intopPoints[a_nSubdivisions - 1], intopPoints[0]);
+
+
+	//faces
+
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddQuad(outPoints[i], outPoints[i + 1], outtopPoints[i], outtopPoints[i + 1]);
+		AddQuad(intopPoints[i], intopPoints[i + 1], inPoints[i], inPoints[i + 1]);
+	}
+
+	AddQuad(outPoints[a_nSubdivisions - 1], outPoints[0], outtopPoints[a_nSubdivisions - 1], outtopPoints[0]);
+	AddQuad(intopPoints[a_nSubdivisions - 1], intopPoints[0], inPoints[a_nSubdivisions - 1], inPoints[0]);
 	// -------------------------------
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
 }
+
 void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Color)
 {
 	if (a_fRadius < 0.01f)
@@ -387,7 +516,120 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	std::vector<vector3> Points;
+
+	std::vector<vector3> top1;
+
+	std::vector<vector3> top2;
+
+	std::vector<vector3> top3;
+
+	std::vector<vector3> bot1;
+
+	std::vector<vector3> bot2;
+
+	std::vector<vector3> bot3;
+
+
+	a_nSubdivisions = 15;
+	a_fRadius = 1.0f; 
+
+	float dAngle = 360 / a_nSubdivisions;
+
+	//center
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		Points.push_back(vector3(glm::sin(glm::radians(dAngle * i)) * a_fRadius, 0.0f, glm::cos(glm::radians(dAngle * i)) * a_fRadius));
+	}
+
+	//topside
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		float rad = a_fRadius - .3;
+		//rad--; 
+		top1.push_back(vector3(glm::sin(glm::radians(dAngle * i)) *rad, 0.5f, glm::cos(glm::radians(dAngle * i)) * rad));
+	}
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		float rad = a_fRadius - .7;
+		//rad--; 
+		top2.push_back(vector3(glm::sin(glm::radians(dAngle * i)) *rad, 0.75f, glm::cos(glm::radians(dAngle * i)) * rad));
+	}
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		float rad = a_fRadius - 1;
+		//rad--; 
+		top3.push_back(vector3(glm::sin(glm::radians(dAngle * i)) *rad, 0.85f, glm::cos(glm::radians(dAngle * i)) * rad));
+	}
+
+	//botside
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		float rad = a_fRadius - .3;
+		//rad--; 
+		bot1.push_back(vector3(glm::sin(glm::radians(dAngle * i)) *rad, -0.5f, glm::cos(glm::radians(dAngle * i)) * rad));
+	}
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		float rad = a_fRadius - .7;
+		//rad--; 
+		bot2.push_back(vector3(glm::sin(glm::radians(dAngle * i)) *rad, -0.75f, glm::cos(glm::radians(dAngle * i)) * rad));
+	}
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		float rad = a_fRadius - 1;
+		//rad--; 
+		bot3.push_back(vector3(glm::sin(glm::radians(dAngle * i)) *rad, -0.85f, glm::cos(glm::radians(dAngle * i)) * rad));
+	}
+
+
+	//render
+	
+	//top
+	//top 1
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddQuad(Points[i], Points[i+1], top1[i], top1[i+1]);
+	}
+	AddQuad(top1[0], top1[a_nSubdivisions - 1],Points[0], Points[a_nSubdivisions - 1]);
+
+	//top 2
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddQuad(top1[i], top1[i + 1], top2[i], top2[i + 1]);
+	}
+	AddQuad(top2[0], top2[a_nSubdivisions - 1], top1[0], top1[a_nSubdivisions - 1]);
+
+	//top3
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddQuad(top2[i], top2[i + 1], top3[i], top3[i + 1]);
+	}
+	AddQuad(top3[0], top3[a_nSubdivisions - 1], top2[0], top2[a_nSubdivisions - 1]);
+	
+	//botside
+	//bot 1
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddQuad(bot1[i], bot1[i + 1], Points[i], Points[i + 1]);
+	}
+	AddQuad(Points[0], Points[a_nSubdivisions - 1],bot1[0], bot1[a_nSubdivisions - 1]);
+
+	//bot2
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddQuad(bot2[i], bot2[i + 1], bot1[i], bot1[i + 1]);
+	}
+	AddQuad(bot1[0], bot1[a_nSubdivisions - 1],bot2[0], bot2[a_nSubdivisions - 1]);
+
+	//bot3
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddQuad(bot3[i], bot3[i + 1],bot2[i], bot2[i + 1]);
+	}
+	AddQuad(bot2[0], bot2[a_nSubdivisions - 1], bot3[0], bot3[a_nSubdivisions - 1]);
+
+
 	// -------------------------------
 
 	// Adding information about color

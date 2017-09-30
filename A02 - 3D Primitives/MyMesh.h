@@ -8,6 +8,7 @@ Date: 2017/05
 #define USEBASICX
 #ifdef USEBASICX
 #include "BasicX\BasicX.h"
+#include <vector>
 using namespace BasicX;
 #else
 #include "Simplex\Simplex.h"

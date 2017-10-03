@@ -62,13 +62,31 @@ void Application::Display(void)
 
 
 	//your code goes here
-	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
+	vector3 v3Start; //start point
+	vector3 v3End; //end point
+	static uint route = 0; //current route
+	v3Start = m_stopsList[route]; //start at the current route
+	v3End = m_stopsList[(route + 1) % m_stopsList.size()]; //end at route +1 (if overboard will restart from 0)
+
+												 //get the percentace
+	float fTimeBetweenStops = 2.0;//in seconds
+								  //map the value to be between 0.0 and 1.0
+	float fPercentage = MapValue(fTimer, 0.0f, fTimeBetweenStops, 0.0f, 1.0f);
+
+	//calculate the current position
+	v3CurrentPos = glm::lerp(v3Start, v3End, fPercentage);
+	matrix4 m4Model = glm::translate(IDENTITY_M4, v3CurrentPos);
+
+	//if we are done with this route
+	if (fPercentage >= 1.0f)
+	{
+		route++; //go to the next route
+		fTimer = m_pSystem->GetDeltaTime(uClock);//restart the clock
+		route %= m_stopsList.size();//make sure we are within boundries
+	}
 	//-------------------
 	
 
-
-	
-	matrix4 m4Model = glm::translate(v3CurrentPos);
 	m_pModel->SetModelMatrix(m4Model);
 
 	m_pMeshMngr->Print("\nTimer: ");//Add a line on top

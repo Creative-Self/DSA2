@@ -285,6 +285,7 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	{
 		Points.push_back(vector3(glm::sin(glm::radians(dAngle * i)) * a_fRadius, 0.0f, glm::cos(glm::radians(dAngle * i)) * a_fRadius));
 	}
+
 	for (int i = 0; i <= a_nSubdivisions; i++)
 	{
 		AddTri(Points[i], Points[i+1], Points[0]);

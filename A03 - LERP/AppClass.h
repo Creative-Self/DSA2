@@ -12,6 +12,7 @@ Date: 2017/05
 #include "SFML\Window.hpp"
 #include "SFML\Graphics.hpp"
 #include "SFML\OpenGL.hpp"
+#include <thread>
 
 #include "ControllerConfiguration.h"
 #include "imgui\ImGuiObject.h"
@@ -24,7 +25,13 @@ class Application
 	
 private:
 	static ImGuiObject gui; //GUI object
-	
+
+	std::vector<std::vector<vector3>> orbitsPos; // the positions of each orbit to orbit
+	std::vector<uint> routes;  // the routes of each orbit 
+
+	matrix4 m4Offset = glm::rotate(IDENTITY_M4, 90.0f, AXIS_Z);
+	matrix4 mat = glm::rotate(m4Offset, 90.0f, AXIS_X);
+
 	uint m_uRenderCallCount = 0; //count of render calls per frame
 	uint m_uControllerCount = 0; //count of controllers connected
 
@@ -126,6 +133,8 @@ private:
 #pragma endregion
 
 #pragma region Main Loop
+
+	
 	/*
 	USAGE: Updates the scene
 	ARGUMENTS: ---

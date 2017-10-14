@@ -58,13 +58,14 @@ void Application::Display(void)
 	vector3 v3CurrentPos;
 	
 	//your code goes here
+
 	vector3 v3Start; //start point
 	vector3 v3End; //end point
 	static uint route = 0; //current route
 	v3Start = m_stopsList[route]; //start at the current route
 	v3End = m_stopsList[(route + 1) % m_stopsList.size()]; //end at route +1 (if overboard will restart from 0)
 
-												 //get the percentace
+	//get the percentace
 	float fTimeBetweenStops = 2.0;//in seconds
 								  //map the value to be between 0.0 and 1.0
 	float fPercentage = MapValue(fTimer, 0.0f, fTimeBetweenStops, 0.0f, 1.0f);
@@ -80,6 +81,7 @@ void Application::Display(void)
 		fTimer = m_pSystem->GetDeltaTime(uClock);//restart the clock
 		route %= m_stopsList.size();//make sure we are within boundries
 	}
+	
 	//-------------------
 	
 

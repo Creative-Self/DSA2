@@ -57,10 +57,6 @@ void Application::Display(void)
 	//calculate the current position
 	vector3 v3CurrentPos;
 	
-
-
-
-
 	//your code goes here
 	vector3 v3Start; //start point
 	vector3 v3End; //end point

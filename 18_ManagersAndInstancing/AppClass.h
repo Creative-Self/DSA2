@@ -19,6 +19,8 @@ class Application
 	MyCamera* m_pCamera = nullptr;
 	MyMeshManager* m_pMyMeshMngr = nullptr;
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	MyMesh* m_pMesh;
+	std::vector<matrix4*> m4List;
 private:
 	static ImGuiObject gui; //GUI object
 

@@ -22,7 +22,7 @@ void Application::ProcessMousePressed(sf::Event a_event)
 		break;
 	case sf::Mouse::Button::Middle:
 		gui.m_bMousePressed[1] = true;
-		m_bArcBall = true;
+		
 		break;
 	case sf::Mouse::Button::Right:
 		gui.m_bMousePressed[2] = true;
@@ -43,7 +43,7 @@ void Application::ProcessMouseReleased(sf::Event a_event)
 		break;
 	case sf::Mouse::Button::Middle:
 		gui.m_bMousePressed[1] = false;
-		m_bArcBall = false;
+		
 		break;
 	case sf::Mouse::Button::Right:
 		gui.m_bMousePressed[2] = false;
@@ -350,30 +350,30 @@ void Application::CameraRotation(float a_fSpeed)
 	if (MouseX < CenterX)
 	{
 		fDeltaMouse = static_cast<float>(CenterX - MouseX);
-		fAngleY += fDeltaMouse * a_fSpeed;
+		fAngleX += fDeltaMouse * a_fSpeed;
 	}
 	else if (MouseX > CenterX)
 	{
 		fDeltaMouse = static_cast<float>(MouseX - CenterX);
-		fAngleY -= fDeltaMouse * a_fSpeed;
+		fAngleX -= fDeltaMouse * a_fSpeed;
 	}
 
 	if (MouseY < CenterY)
 	{
 		fDeltaMouse = static_cast<float>(CenterY - MouseY);
-		fAngleX -= fDeltaMouse * a_fSpeed;
+		fAngleY -= fDeltaMouse * a_fSpeed;
 	}
 	else if (MouseY > CenterY)
 	{
 		fDeltaMouse = static_cast<float>(MouseY - CenterY);
-		fAngleX += fDeltaMouse * a_fSpeed;
+		fAngleY += fDeltaMouse * a_fSpeed;
 	}
 
 
-	vector3 up = m_pCamera->GetCUp(); // normalized up vector 
+	vector3 up = m_pCamera->GetUp(); // normalized up vector 
 
 	vector3 forward =
-		vector3(m_pCamera->GetCTarget() - m_pCamera->GetCPosition());
+		vector3(m_pCamera->GetTarget() - m_pCamera->GetPosition());
 
 	vector3 right = glm::normalize(glm::cross(up, forward));
 
@@ -381,7 +381,8 @@ void Application::CameraRotation(float a_fSpeed)
 	if (yAngle > 90.0f) yAngle = 90.0f; 
 	else if (yAngle < -90.0f) yAngle = -90.0f; 
 	else rotationQuad = glm::angleAxis(fAngleY, right)* rotationQuad;
-	glm::angleAxis(fAngleX, up)* rotationQuad;
+	
+	rotationQuad = glm::angleAxis(fAngleX, up)* rotationQuad;
 
 	//Change the Yaw and the Pitch of the camera
 	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
@@ -401,9 +402,9 @@ void Application::ProcessKeyboard(void)
 	if (fMultiplier)
 		fSpeed *= 5.0f;
 
-	vector3 position = m_pCamera->GetCPosition(); 
+	vector3 position = m_pCamera->GetPosition(); 
 
-	vector3 up = m_pCamera->GetCUp(); // normalized up vector 
+	vector3 up = m_pCamera->GetUp(); // normalized up vector 
 
 	vector3 forward = 
 		vector3(

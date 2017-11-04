@@ -75,15 +75,15 @@ void Simplex::MyCamera::Init(void)
 	//No pointers to initialize here
 }
 
-vector3 Simplex::MyCamera::GetCPosition(void)
+vector3 Simplex::MyCamera::GetPosition(void)
 {
-	return m_v3Position; 
+	return m_v3Position;
 }
-vector3 Simplex::MyCamera::GetCTarget(void)
+vector3 Simplex::MyCamera::GetTarget(void)
 {
 	return m_v3Target; 
 }
-vector3 Simplex::MyCamera::GetCUp(void)
+vector3 Simplex::MyCamera::GetUp(void)
 {
 	return glm::normalize(m_v3Up);
 }
@@ -142,7 +142,7 @@ void Simplex::MyCamera::SetPositionTargetAndUp(vector3 a_v3Position, vector3 a_v
 {
 	m_v3Position = a_v3Position;
 	m_v3Target = a_v3Target;
-	m_v3Up = a_v3Position + a_v3Upward;
+	m_v3Up =  a_v3Upward; // not in global space anymore so no need for position 
 	CalculateProjectionMatrix();
 }
 

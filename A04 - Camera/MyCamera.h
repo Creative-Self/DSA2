@@ -44,9 +44,6 @@ public:
 	-	vector3 a_v3Upward -> What is up
 	OUTPUT: ---
 	*/
-	vector3 GetCPosition(void); //getter methods
-	vector3 GetCTarget(void); 
-	vector3 GetCUp(void); 
 
 	MyCamera(vector3 a_v3Position, vector3 a_v3Target, vector3 a_v3Upward);
 

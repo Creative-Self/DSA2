@@ -9,7 +9,7 @@ Date: 2017/05
 
 #include "ControllerConfiguration.h"
 #include "imgui\ImGuiObject.h"
-
+#include "MyCamera.h"
 #include "MyMeshManager.h"
 namespace Simplex
 {
@@ -180,7 +180,7 @@ private:
 	ARGUMENTS: float a_fSpeed = 0.005f
 	OUTPUT: ---
 	*/
-	void CameraRotation(float a_fSpeed = 0.005f);
+	void CameraRotation(float a_fSpeed = 0.025f);
 #pragma endregion
 
 #pragma region Process Events

@@ -75,6 +75,19 @@ void Simplex::MyCamera::Init(void)
 	//No pointers to initialize here
 }
 
+vector3 Simplex::MyCamera::GetCPosition(void)
+{
+	return m_v3Position; 
+}
+vector3 Simplex::MyCamera::GetCTarget(void)
+{
+	return m_v3Target; 
+}
+vector3 Simplex::MyCamera::GetCUp(void)
+{
+	return glm::normalize(m_v3Up);
+}
+
 void Simplex::MyCamera::Release(void)
 {
 	//No pointers to deallocate yet

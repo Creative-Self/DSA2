@@ -368,6 +368,21 @@ void Application::CameraRotation(float a_fSpeed)
 		fDeltaMouse = static_cast<float>(MouseY - CenterY);
 		fAngleX += fDeltaMouse * a_fSpeed;
 	}
+
+
+	vector3 up = m_pCamera->GetCUp(); // normalized up vector 
+
+	vector3 forward =
+		vector3(m_pCamera->GetCTarget() - m_pCamera->GetCPosition());
+
+	vector3 right = glm::normalize(glm::cross(up, forward));
+
+	yAngle += fAngleY; 
+	if (yAngle > 90.0f) yAngle = 90.0f; 
+	else if (yAngle < -90.0f) yAngle = -90.0f; 
+	else rotationQuad = glm::angleAxis(fAngleY, right)* rotationQuad;
+	glm::angleAxis(fAngleX, up)* rotationQuad;
+
 	//Change the Yaw and the Pitch of the camera
 	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
 }
@@ -385,6 +400,40 @@ void Application::ProcessKeyboard(void)
 
 	if (fMultiplier)
 		fSpeed *= 5.0f;
+
+	vector3 position = m_pCamera->GetCPosition(); 
+
+	vector3 up = m_pCamera->GetCUp(); // normalized up vector 
+
+	vector3 forward = 
+		vector3(
+			2.0f * (rotationQuad.x * rotationQuad.z + rotationQuad.w * rotationQuad.y), 
+			2.0f *( rotationQuad.y * rotationQuad.z - rotationQuad.w * rotationQuad.x), 
+			1.0f - 2.0f *( rotationQuad.x * rotationQuad.x + rotationQuad.y * rotationQuad.y)
+		);
+
+	vector3 right = glm::normalize(glm::cross(up, forward)); 
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		position += forward*fSpeed; 
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		position -= forward*fSpeed;
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		position += right*fSpeed; 
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		position -= right*fSpeed; 
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+		position -= up*fSpeed;
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+		position += up*fSpeed;
+
+	m_pCamera->SetPositionTargetAndUp(position, position + forward ,up);
+
 #pragma endregion
 }
 //Joystick

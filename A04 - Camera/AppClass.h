@@ -24,6 +24,8 @@ private:
 
 	uint m_uRenderCallCount = 0; //count of render calls per frame
 	uint m_uControllerCount = 0; //count of controllers connected
+	float yAngle = 0; // angle for y axis 
+	quaternion rotationQuad; // for rotating via mouse 
 
 	vector3 m_v3Mouse = vector3(); //position of the mouse in the window
 	bool m_bFPC = false;// First Person Camera flag

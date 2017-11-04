@@ -1,3 +1,4 @@
+#include "..\A04 - Camera\MyCamera.h"
 #include "MyCamera.h"
 using namespace Simplex;
 
@@ -6,6 +7,10 @@ void Simplex::MyCamera::SetPosition(vector3 a_v3Position) { m_v3Position = a_v3P
 vector3 Simplex::MyCamera::GetPosition(void) { return m_v3Position; }
 
 void Simplex::MyCamera::SetTarget(vector3 a_v3Target) { m_v3Target = a_v3Target; }
+vector3 Simplex::MyCamera::GetPositon(void)
+{
+	return vector3();
+}
 vector3 Simplex::MyCamera::GetTarget(void) { return m_v3Target; }
 
 void Simplex::MyCamera::SetUp(vector3 a_v3Up) { m_v3Up = a_v3Up; }

@@ -277,8 +277,6 @@ void MyRigidBody::AddToRenderList(void)
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
 	/*
-	Your code goes here instead of this comment;
-
 	For this method, if there is an axis that separates the two objects
 	then the return will be different than 0; 1 for any separating axis
 	is ok if you are not going for the extra credit, if you could not
@@ -286,6 +284,153 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	Simplex that might help you [eSATResults] feel free to use it.
 	(eSATResults::SAT_NONE has a value of 0)
 	*/
+
+	float thisRadius;
+	float otherRadius;
+	float combinedRadius; 
+
+	int collideTrue = 1; 
+
+	vector3 thisHalf = GetHalfWidth();
+	vector3 otherHalf = a_pOther->GetHalfWidth();
+
+	vector3 thisAxes[3];
+	thisAxes[0] = vector3(GetModelMatrix() * vector4(AXIS_X, 0));
+	thisAxes[1] = vector3(GetModelMatrix() * vector4(AXIS_Y, 0));
+	thisAxes[2] = vector3(GetModelMatrix() * vector4(AXIS_Z, 0));
+
+	vector3 otherAxes[3];
+	otherAxes[0] = vector3(a_pOther->GetModelMatrix() * vector4(AXIS_X, 0));
+	otherAxes[1] = vector3(a_pOther->GetModelMatrix() * vector4(AXIS_Y, 0));
+	otherAxes[2] = vector3(a_pOther->GetModelMatrix() * vector4(AXIS_Z, 0));
+
+	matrix3 rotationMats;
+	matrix3 absoluteRotationMats;
+
+	//fill in values for the matrices 
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			rotationMats[i][j] = glm::dot(thisAxes[i], otherAxes[j]);
+			absoluteRotationMats[i][j] = glm::abs(rotationMats[i][j]);
+		}
+	}
+
+	vector3 translation = a_pOther->GetCenterGlobal() - GetCenterGlobal();
+	translation = vector3(glm::dot(translation, thisAxes[0]),
+		glm::dot(translation, thisAxes[1]),
+		glm::dot(translation, thisAxes[2]));
+
+	// L = b0 b1 b2
+	for (int i = 0; i < 3; i++)
+	{
+		thisRadius = thisHalf[0] * absoluteRotationMats[0][i] + thisHalf[1] * absoluteRotationMats[1][i] + thisHalf[2] * absoluteRotationMats[2][i];
+		otherRadius = otherHalf[i];
+		combinedRadius = thisRadius + otherRadius; 
+
+		if (glm::abs(translation[0] * rotationMats[0][i] + translation[1] * rotationMats[1][i] + translation[2] * rotationMats[2][i]) > combinedRadius)
+		{
+			switch (i) {
+			case 0:
+				return collideTrue;
+			case 1:
+				return collideTrue;
+			default:
+				return collideTrue;
+			}
+		}
+	}
+
+	//a0 b0 
+	thisRadius = thisHalf[1] * absoluteRotationMats[2][0] + thisHalf[2] * absoluteRotationMats[1][0];
+	otherRadius = otherHalf[1] * absoluteRotationMats[0][2] + otherHalf[2] * absoluteRotationMats[0][1];
+	combinedRadius = thisRadius + otherRadius;
+
+	if (glm::abs(translation[2] * rotationMats[1][0] - translation[1] * rotationMats[2][0]) > combinedRadius)
+	{
+		return collideTrue;
+	}
+
+	// a0 b1
+	thisRadius = thisHalf[1] * absoluteRotationMats[2][1] + thisHalf[2] * absoluteRotationMats[1][1];
+	otherRadius = otherHalf[0] * absoluteRotationMats[0][2] + otherHalf[2] * absoluteRotationMats[0][0];
+	combinedRadius = thisRadius + otherRadius;
+
+	if (glm::abs(translation[2] * rotationMats[1][1] - translation[1] * rotationMats[2][1]) > combinedRadius)
+	{
+		return collideTrue;
+	}
+
+	//a0 b2
+	thisRadius = thisHalf[1] * absoluteRotationMats[2][2] + thisHalf[2] * absoluteRotationMats[1][2];
+	otherRadius = otherHalf[0] * absoluteRotationMats[0][1] + otherHalf[1] * absoluteRotationMats[0][0];
+	combinedRadius = thisRadius + otherRadius;
+
+	if (glm::abs(translation[2] * rotationMats[1][2] - translation[1] * rotationMats[2][2]) > combinedRadius)
+	{
+		return collideTrue;
+	}
+
+	//a1 b0
+	thisRadius = thisHalf[0] * absoluteRotationMats[2][0] + thisHalf[2] * absoluteRotationMats[0][0];
+	otherRadius = otherHalf[1] * absoluteRotationMats[1][2] + otherHalf[2] * absoluteRotationMats[1][1];
+	combinedRadius = thisRadius + otherRadius;
+
+	if (glm::abs(translation[0] * rotationMats[2][0] - translation[2] * rotationMats[0][0]) > combinedRadius)
+	{
+		return collideTrue;
+	}
+
+	// a1 b1
+	thisRadius = thisHalf[0] * absoluteRotationMats[2][1] + thisHalf[2] * absoluteRotationMats[0][1];
+	otherRadius = otherHalf[0] * absoluteRotationMats[1][2] + otherHalf[2] * absoluteRotationMats[1][0];
+	combinedRadius = thisRadius + otherRadius;
+
+	if (glm::abs(translation[0] * rotationMats[2][1] - translation[2] * rotationMats[0][1]) > combinedRadius)
+	{
+		return collideTrue;
+	}
+
+	// a1 b2
+	thisRadius = thisHalf[0] * absoluteRotationMats[2][2] + thisHalf[2] * absoluteRotationMats[0][2];
+	otherRadius = otherHalf[0] * absoluteRotationMats[1][1] + otherHalf[1] * absoluteRotationMats[1][0];
+	combinedRadius = thisRadius + otherRadius;
+
+	if (glm::abs(translation[0] * rotationMats[2][2] - translation[2] * rotationMats[0][2]) > combinedRadius)
+	{
+		return collideTrue;
+	}
+
+	// a2 b0
+	thisRadius = thisHalf[0] * absoluteRotationMats[1][0] + thisHalf[1] * absoluteRotationMats[0][0];
+	otherRadius = otherHalf[1] * absoluteRotationMats[2][2] + otherHalf[2] * absoluteRotationMats[2][1];
+	combinedRadius = thisRadius + otherRadius;
+
+	if (glm::abs(translation[1] * rotationMats[0][0] - translation[0] * rotationMats[1][0]) > combinedRadius)
+	{
+		return collideTrue;
+	}
+
+	// a2 b1
+	thisRadius = thisHalf[0] * absoluteRotationMats[1][1] + thisHalf[1] * absoluteRotationMats[0][1];
+	otherRadius = otherHalf[0] * absoluteRotationMats[2][2] + otherHalf[2] * absoluteRotationMats[2][0];
+	combinedRadius = thisRadius + otherRadius;
+
+	if (glm::abs(translation[1] * rotationMats[0][1] - translation[0] * rotationMats[1][1]) > combinedRadius)
+	{
+		return collideTrue;
+	}
+
+	// a2 b2
+	thisRadius = thisHalf[0] * absoluteRotationMats[1][2] + thisHalf[1] * absoluteRotationMats[0][2];
+	otherRadius = otherHalf[0] * absoluteRotationMats[2][1] + otherHalf[1] * absoluteRotationMats[2][0];
+	combinedRadius = thisRadius + otherRadius;
+
+	if (glm::abs(translation[1] * rotationMats[0][2] - translation[0] * rotationMats[1][2]) > combinedRadius)
+	{
+		return collideTrue;
+	}
 
 	//there is no axis test that separates this two objects
 	return eSATResults::SAT_NONE;

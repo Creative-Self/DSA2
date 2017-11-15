@@ -331,14 +331,7 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 
 		if (glm::abs(translation[0] * rotationMats[0][i] + translation[1] * rotationMats[1][i] + translation[2] * rotationMats[2][i]) > combinedRadius)
 		{
-			switch (i) {
-			case 0:
-				return collideTrue;
-			case 1:
-				return collideTrue;
-			default:
-				return collideTrue;
-			}
+			return collideTrue;
 		}
 	}
 

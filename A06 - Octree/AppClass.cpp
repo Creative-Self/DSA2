@@ -29,7 +29,9 @@ void Application::InitVariables(void)
 			m_pEntityMngr->SetModelMatrix(m4Position);
 		}
 	}
+
 	m_uOctantLevels = 1;
+	root = new MyOctant(m_uOctantLevels, 5);
 	m_pEntityMngr->Update();
 }
 void Application::Update(void)
@@ -55,7 +57,7 @@ void Application::Display(void)
 	ClearScreen();
 
 	//display octree
-	//m_pRoot->Display();
+	root->Display(m_uOctantID, C_BLUE);
 	
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();

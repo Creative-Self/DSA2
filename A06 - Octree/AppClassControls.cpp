@@ -113,38 +113,40 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 		break;
 	case sf::Keyboard::PageUp:
 		++m_uOctantID;
-		/*
-		if (m_uOctantID >= m_pRoot->GetOctantCount())
+		
+		if (m_uOctantID >= root->GetOctantCount())
 			m_uOctantID = - 1;
-		*/
+		
 		break;
 	case sf::Keyboard::PageDown:
 		--m_uOctantID;
-		/*
-		if (m_uOctantID >= m_pRoot->GetOctantCount())
+		
+		if (m_uOctantID >= root->GetOctantCount())
 			m_uOctantID = - 1;
-		*/
+		
 		break;
 	case sf::Keyboard::Add:
 		if (m_uOctantLevels < 4)
 		{
+			std::cout << "Pressed add"; 
 			m_pEntityMngr->ClearDimensionSetAll();
 			++m_uOctantLevels;
-			/*
-			SafeDelete(m_pRoot);
-			m_pRoot = new MyOctant(m_uOctantLevels, 5);
-			*/
+			
+			SafeDelete(root);
+			root = new MyOctant(m_uOctantLevels, 5);
+			
 		}
 		break;
 	case sf::Keyboard::Subtract:
 		if (m_uOctantLevels > 0)
 		{
+			std::cout << "Pressed sub";
 			m_pEntityMngr->ClearDimensionSetAll();
 			--m_uOctantLevels;
-			/*
-			SafeDelete(m_pRoot);
-			m_pRoot = new MyOctant(m_uOctantLevels, 5);
-			*/
+			
+			SafeDelete(root);
+			root = new MyOctant(m_uOctantLevels, 5);
+			
 		}
 		break;
 	case sf::Keyboard::LShift:

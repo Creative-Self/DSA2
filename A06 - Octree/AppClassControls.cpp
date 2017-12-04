@@ -149,6 +149,9 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 			
 		}
 		break;
+	case sf::Keyboard::P: // display octree 
+		displayOct = !displayOct; 
+		break;
 	case sf::Keyboard::LShift:
 	case sf::Keyboard::RShift:
 		m_bModifier = false;

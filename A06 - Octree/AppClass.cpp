@@ -56,9 +56,10 @@ void Application::Display(void)
 	// Clear the screen
 	ClearScreen();
 
-	//display octree
-	root->Display(m_uOctantID, C_BLUE);
-	
+	if (displayOct) {
+		//display octree
+		root->Display(m_uOctantID, C_BLUE);
+	}
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
 	

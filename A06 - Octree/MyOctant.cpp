@@ -1,16 +1,16 @@
 #include "MyOctant.h"
 using namespace Simplex;
 
-//declaring static variables
+//static
 uint MyOctant::m_uOctantCount;
 uint MyOctant::m_uLeafCount;
 uint MyOctant::m_uMaxLevel;
 uint MyOctant::m_uIdealEntityCount;
 
-//constructor for root
+//root construct 
 MyOctant::MyOctant(uint a_nMaxLevel, uint a_nIdealEntityCount)
 {
-	//creates the root octant
+	//create root
 	Init();
 	m_pRoot = this;
 	m_uMaxLevel = a_nMaxLevel;
@@ -19,28 +19,29 @@ MyOctant::MyOctant(uint a_nMaxLevel, uint a_nIdealEntityCount)
 	//sets the max/min to center
 	m_v3Max = m_v3Min = m_pEntityMngr->GetRigidBody()->GetCenterGlobal();
 	m_uCurrEntityCount = m_pEntityMngr->GetEntityCount();
+
 	for (uint i = 0; i < m_uCurrEntityCount; ++i)
 	{
 		m_lEntityList.push_back(i);
 
 		//get min/max
-		vector3 rb_min = m_pEntityMngr->GetRigidBody(i)->GetMinGlobal();
-		vector3 rb_max = m_pEntityMngr->GetRigidBody(i)->GetMaxGlobal();
+		vector3 min = m_pEntityMngr->GetRigidBody(i)->GetMinGlobal();
+		vector3 max = m_pEntityMngr->GetRigidBody(i)->GetMaxGlobal();
 
-		//set min/max for the octant
-		if (rb_min.x < m_v3Min.x) m_v3Min.x = rb_min.x;
-		if (rb_min.y < m_v3Min.y) m_v3Min.y = rb_min.y;
-		if (rb_min.z < m_v3Min.z) m_v3Min.z = rb_min.z;
-		if (rb_max.x > m_v3Max.x) m_v3Max.x = rb_max.x;
-		if (rb_max.y > m_v3Max.y) m_v3Max.y = rb_max.y;
-		if (rb_max.z > m_v3Max.z) m_v3Max.z = rb_max.z;
+		//set min/max
+		if (min.x < m_v3Min.x) m_v3Min.x = min.x;
+		if (min.y < m_v3Min.y) m_v3Min.y = min.y;
+		if (min.z < m_v3Min.z) m_v3Min.z = min.z;
+		if (max.x > m_v3Max.x) m_v3Max.x = max.x;
+		if (max.y > m_v3Max.y) m_v3Max.y = max.y;
+		if (max.z > m_v3Max.z) m_v3Max.z = max.z;
 	}
 
-	//calculate center/size
+	//calc center
 	m_v3Center = (m_v3Min + m_v3Max) / 2.0f;
 	m_v3Size = m_v3Max - m_v3Min;
 
-	//create appropriate children
+	//create children
 	Subdivide();
 
 	//add leaf dimensions
@@ -63,7 +64,7 @@ MyOctant::MyOctant(MyOctant const & other)
 {
 	Init();
 
-	//copying data over
+	//copy data
 	m_uLevel = other.m_uLevel;
 	m_v3Size = other.m_v3Size;
 	m_v3Center = other.m_v3Center;
@@ -71,22 +72,23 @@ MyOctant::MyOctant(MyOctant const & other)
 	m_v3Max = other.m_v3Max;
 	m_pParent = other.m_pParent;
 
-	//loops through and recursively copy/create more nodes
+	//copy/create more nodes
 	m_uChildren = other.m_uChildren;
 	for (uint i = 0; i < m_uChildren; ++i)
 	{
 		m_pChild[i] = new MyOctant(*other.m_pChild[i]);
 	}
 
-	//create a new entity list
+	//create entity list
 	m_uCurrEntityCount = other.m_uCurrEntityCount;
 	for (uint i = 0; i < m_uCurrEntityCount; ++i)
 	{
 		m_lEntityList.push_back(other.m_lEntityList[i]);
 	}
 
-	//if it's root, copy m_lChildren over
+	//if root copy child
 	m_pRoot = other.m_pRoot;
+
 	if (this == m_pRoot)
 	{
 		float fChildCount = other.m_lChildren.size();
@@ -97,19 +99,18 @@ MyOctant::MyOctant(MyOctant const & other)
 	}
 }
 
-//copy assignment operator
+//copy assignment
 MyOctant & MyOctant::operator=(MyOctant const & other)
 {
 	if (&other == this)
 	{
 		return *this;
 	}
-	//release initial value
-	//creates error if trying to assign child node to parent node
+
 	Release();
 	Init();
 
-	//copying data over
+	//copy data
 	m_uLevel = other.m_uLevel;
 	m_v3Size = other.m_v3Size;
 	m_v3Center = other.m_v3Center;
@@ -117,21 +118,21 @@ MyOctant & MyOctant::operator=(MyOctant const & other)
 	m_v3Max = other.m_v3Max;
 	m_pParent = other.m_pParent;
 
-	//loops through and recursively copy/create more nodes
+	//copy/create more nodes
 	m_uChildren = other.m_uChildren;
 	for (uint i = 0; i < m_uChildren; ++i)
 	{
 		m_pChild[i] = new MyOctant(*other.m_pChild[i]);
 	}
 
-	//create a new entity list
+	//create entity list
 	m_uCurrEntityCount = other.m_uCurrEntityCount;
 	for (uint i = 0; i < m_uCurrEntityCount; ++i)
 	{
 		m_lEntityList.push_back(other.m_lEntityList[i]);
 	}
 
-	//if it's root, copy m_lChildren over
+	//if root copy child
 	m_pRoot = other.m_pRoot;
 	if (this == m_pRoot)
 	{
@@ -169,14 +170,22 @@ void MyOctant::Swap(MyOctant & other)
 	std::swap(m_lChildren, other.m_lChildren);
 }
 
-//Getters
+//Getterz
 vector3 MyOctant::GetSize() { return m_v3Size; }
+
 vector3 MyOctant::GetCenterGlobal() { return m_v3Center; }
+
 vector3 MyOctant::GetMinGlobal() { return m_v3Min; }
+
 vector3 MyOctant::GetMaxGlobal() { return m_v3Max; }
+
 uint MyOctant::GetOctantCount() { return m_uOctantCount; }
+
 uint Simplex::MyOctant::GetLeafCount() { return m_uLeafCount; }
+
 MyOctant * MyOctant::GetParent() { return m_pParent; }
+
+///////
 
 MyOctant * MyOctant::GetChild(uint a_nChild)
 {
@@ -184,8 +193,11 @@ MyOctant * MyOctant::GetChild(uint a_nChild)
 		return nullptr;
 	else return m_pChild[a_nChild];
 }
+
 bool MyOctant::IsLeaf(void) { return m_uChildren == 0; }
+
 bool MyOctant::ContainsMoreThan(uint a_nEntities) { return m_uCurrEntityCount > a_nEntities; }
+
 bool MyOctant::IsColliding(uint a_uRBIndex)
 {
 	MyRigidBody* rb = m_pEntityMngr->GetRigidBody(a_uRBIndex);
@@ -203,7 +215,7 @@ bool MyOctant::IsColliding(uint a_uRBIndex)
 	else return false;
 }
 
-//display selected octants
+//display select octants
 void Simplex::MyOctant::Display(uint a_uIndex, vector3 a_v3Color)
 {
 	if (a_uIndex >= m_uOctantCount)
@@ -215,7 +227,7 @@ void Simplex::MyOctant::Display(uint a_uIndex, vector3 a_v3Color)
 
 	m_lChildren[a_uIndex]->DisplayCurrent(a_v3Color);
 }
-// only display an octant
+// only display 1 octant
 void MyOctant::DisplayCurrent(vector3 a_v3Color)
 {
 	m_pMeshMngr->AddWireCubeToRenderList(glm::translate(IDENTITY_M4, m_v3Center) * glm::scale(IDENTITY_M4, m_v3Size), a_v3Color);
@@ -234,7 +246,7 @@ void Simplex::MyOctant::DisplayAll(vector3 a_v3Color)
 		}
 	}
 }
-//clears all child nodes
+//clear all child nodes
 void MyOctant::ClearEntityList(void)
 {
 	for (uint i = 0; i < m_uChildren; ++i)
@@ -260,7 +272,7 @@ void MyOctant::Subdivide(void)
 		return;
 	}
 
-	//creating each octant at the right position
+	//create each octant at updated position
 	m_pChild[0] = new MyOctant(m_v3Center + vector3(-m_v3Size.x / 4, m_v3Size.y / 4, -m_v3Size.z / 4), m_v3Size / 2.0f);
 	m_pChild[1] = new MyOctant(m_v3Center + vector3(-m_v3Size.x / 4, m_v3Size.y / 4, m_v3Size.z / 4), m_v3Size / 2.0f);
 	m_pChild[2] = new MyOctant(m_v3Center + vector3(-m_v3Size.x / 4, -m_v3Size.y / 4, -m_v3Size.z / 4), m_v3Size / 2.0f);
@@ -269,6 +281,7 @@ void MyOctant::Subdivide(void)
 	m_pChild[5] = new MyOctant(m_v3Center + vector3(m_v3Size.x / 4, -m_v3Size.y / 4, m_v3Size.z / 4), m_v3Size / 2.0f);
 	m_pChild[6] = new MyOctant(m_v3Center + vector3(m_v3Size.x / 4, m_v3Size.y / 4, -m_v3Size.z / 4), m_v3Size / 2.0f);
 	m_pChild[7] = new MyOctant(m_v3Center + vector3(m_v3Size.x / 4, m_v3Size.y / 4, m_v3Size.z / 4), m_v3Size / 2.0f);
+
 	m_uChildren = 8;
 
 	//initialize children
@@ -291,7 +304,7 @@ void MyOctant::Subdivide(void)
 	}
 }
 
-//kills all nodes except root
+//kills all nodes minus root
 void MyOctant::KillBranches(void)
 {
 	if (IsLeaf())
@@ -308,7 +321,7 @@ void MyOctant::KillBranches(void)
 	}
 }
 
-//configure dimensions for all leaves
+//configure dimensions for leaves
 void Simplex::MyOctant::ConfigureDimensions()
 {
 	if (IsLeaf())
@@ -332,7 +345,7 @@ void MyOctant::Release(void)
 {
 	if (this == m_pRoot)
 	{
-		KillBranches();
+		KillBranches(); //deforestation 
 	}
 }
 
